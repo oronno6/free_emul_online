@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Phone Emulator Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Top Bar: Device Selector & Auto DNS -->
+    <header class="w-full max-w-4xl bg-slate-800 p-4 rounded-xl shadow-lg mb-6 flex flex-wrap justify-between items-center gap-4 border border-slate-700">
+        <!-- Device Manager -->
+        <div class="flex items-center space-x-2">
+            <label for="device-select" class="text-xs sm:text-sm text-slate-300 font-medium">Device Profile:</label>
+            <select id="device-select" onchange="switchDevice()" class="bg-slate-700 border border-slate-600 rounded px-3 py-1.5 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 text-white">
+            </select>
+            <button onclick="createNewDevice()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-md flex items-center gap-1.5 font-semibold transition active:scale-95">
+                <i class="fa-solid fa-plus"></i> New Device
+            </button>
+        </div>
+
+        <!-- Region / DNS Selector -->
+        <div class="flex items-center space-x-2">
+            <span class="text-xs sm:text-sm font-medium mr-1"><i class="fa-solid fa-network-wired text-emerald-400"></i> DNS: <strong id="dns-status" class="text-emerald-400">Auto</strong></span>
+            <select id="country" onchange="updateDNS()" class="bg-slate-700 border border-slate-600 rounded px-3 py-1.5 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 text-white">
+                <option value="us">United States (IP: 192.0.2.1)</option>
+                <option value="uk">United Kingdom (IP: 198.51.100.1)</option>
+                <option value="sg">Singapore (IP: 203.0.113.1)</option>
+                <option value="de">Germany (IP: 212.58.244.1)</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Main Emulator Container (Tall & Sleek Phone Look) -->
+    <main class="w-full max-w-xs bg-black rounded-[45px] p-3 shadow-2xl border-4 border-slate-700 relative flex flex-col items-center">
+        <!-- Phone Speaker / Camera Notch -->
+        <div class="w-28 h-4 bg-slate-800 rounded-full mb-3 flex items-center justify-center">
+            <div class="w-3 h-3 bg-slate-900 rounded-full"></div>
+        </div>
+
+        <!-- Phone Screen / Display Area (Taller aspect ratio) -->
+        <div class="w-full h-[620px] bg-slate-950 rounded-[35px] overflow-hidden flex flex-col justify-between relative border border-slate-800 shadow-inner">
+            
+            <!-- Status Bar -->
+            <div class="bg-slate-900/90 px-4 py-2 flex justify-between items-center text-xs text-slate-300 z-10 border-b border-slate-800">
+                <span id="current-time" class="font-mono font-semibold">12:00 PM</span>
+                <div class="flex items-center space-x-2">
+                    <span id="device-name-display" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-emerald-400 font-medium">Device 1</span>
+                    <i class="fa-solid fa-wifi text-slate-300"></i>
+                    <i class="fa-solid fa-battery-full text-emerald-400"></i>
+                </div>
+            </div>
+
+            <!-- Home Screen App Grid (Added File Manager & Apps) -->
+            <div id="home-screen" class="p-6 grid grid-cols-3 gap-6 flex-grow content-start z-10 overflow-y-auto">
+                
+                <!-- Play Store App -->
+                <button onclick="openApp('playstore')" class="flex flex-col items-center group focus:outline-none active:scale-95 transition">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                        <i class="fa-brands fa-google-play text-2xl text-white"></i>
+                    </div>
+                    <span class="text-[11px] mt-1.5 text-slate-200 font-medium">Play Store</span>
+                </button>
+
+                <!-- Browser App -->
+                <button onclick="openApp('browser')" class="flex flex-col items-center group focus:outline-none active:scale-95 transition">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                        <i class="fa-solid fa-globe text-2xl text-white"></i>
+                    </div>
+                    <span class="text-[11px] mt-1.5 text-slate-200 font-medium">Browser</span>
+                </button>
+
+                <!-- File Manager / Add App -->
+                <button onclick="openApp('files')" class="flex flex-col items-center group focus:outline-none active:scale-95 transition">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                        <i class="fa-solid fa-folder-open text-2xl text-white"></i>
+                    </div>
+                    <span class="text-[11px] mt-1.5 text-slate-200 font-medium">Files / APK</span>
+                </button>
+
+                <!-- Settings App -->
+                <button onclick="openApp('settings')" class="flex flex-col items-center group focus:outline-none active:scale-95 transition">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-slate-600 to-slate-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                        <i class="fa-solid fa-gear text-2xl text-white"></i>
+                    </div>
+                    <span class="text-[11px] mt-1.5 text-slate-200 font-medium">Settings</span>
+                </button>
+
+            </div>
+
+            <!-- Internal App View / Modal -->
+            <div id="app-view" class="absolute inset-0 bg-slate-950 hidden flex flex-col z-20">
+                <div class="bg-slate-900 px-4 py-3 flex justify-between items-center border-b border-slate-800">
+                    <span id="app-title" class="text-xs font-semibold text-white flex items-center gap-2">App</span>
+                    <button onclick="closeApp()" class="text-slate-400 hover:text-white text-xs px-2 py-1 bg-slate-800 rounded transition"><i class="fa-solid fa-xmark"></i> Close</button>
+                </div>
+                <div id="app-content" class="flex-grow flex flex-col items-center justify-center p-4 text-center overflow-y-auto">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+
+            <!-- Navigation Bar with Functional Buttons -->
+            <div class="bg-slate-900 py-3 flex justify-around items-center text-slate-400 text-sm z-10 border-t border-slate-800">
+                <i class="fa-solid fa-chevron-left cursor-pointer hover:text-white transition active:scale-75" onclick="closeApp()" title="Back"></i>
+                <i class="fa-solid fa-circle cursor-pointer hover:text-white transition active:scale-75" onclick="closeApp()" title="Home"></i>
+                <i class="fa-solid fa-square cursor-pointer hover:text-white transition active:scale-75" onclick="alert('Recent Apps: Sandbox Running')" title="Recent"></i>
+            </div>
+        </div>
+
+        <!-- Phone Home Button Bar -->
+        <div class="w-28 h-1 bg-slate-600 rounded-full mt-3"></div>
+    </main>
+
+    <footer class="mt-6 text-center text-xs text-slate-500">
+        <p>Embedded Virtual Phone Environment. Multi-profile local persistence enabled.</p>
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        let devices = JSON.parse(localStorage.getItem('emu_devices')) || [
+            { id: 'dev_1', name: 'Device Profile 1', region: 'us', account: '', installedApps: [] }
+        ];
+        let activeDeviceId = localStorage.getItem('emu_active_device') || 'dev_1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDeviceDropdown();
+            loadActiveDevice();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('current-time').innerText = `${hours}:${minutes} ${ampm}`;
+        }
+
+        function renderDeviceDropdown() {
+            const select = document.getElementById('device-select');
+            select.innerHTML = '';
+            devices.forEach(dev => {
+                const opt = document.createElement('option');
+                opt.value = dev.id;
+                opt.innerText = dev.name;
+                if (dev.id === activeDeviceId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function switchDevice() {
+            activeDeviceId = document.getElementById('device-select').value;
+            localStorage.setItem('emu_active_device', activeDeviceId);
+            loadActiveDevice();
+            closeApp();
+        }
+
+        function loadActiveDevice() {
+            const currentDev = devices.find(d => d.id === activeDeviceId) || devices[0];
+            document.getElementById('device-name-display').innerText = currentDev.name;
+            document.getElementById('country').value = currentDev.region;
+            updateDNSStatus(currentDev.region);
+        }
+
+        function createNewDevice() {
+            const newId = 'dev_' + Date.now();
+            const newName = 'Device Profile ' + (devices.length + 1);
+            const newDev = { id: newId, name: newName, region: 'us', account: '', installedApps: [] };
+            
+            devices.push(newDev);
+            activeDeviceId = newId;
+            
+            localStorage.setItem('emu_devices', JSON.stringify(devices));
+            localStorage.setItem('emu_active_device', activeDeviceId);
+            
+            renderDeviceDropdown();
+            loadActiveDevice();
+            closeApp();
+        }
+
+        function updateDNS() {
+            const region = document.getElementById('country').value;
+            const currentDev = devices.find(d => d.id === activeDeviceId);
+            if (currentDev) {
+                currentDev.region = region;
+                localStorage.setItem('emu_devices', JSON.stringify(devices));
+            }
+            updateDNSStatus(region);
+        }
+
+        function updateDNSStatus(region) {
+            const statusEl = document.getElementById('dns-status');
+            statusEl.innerText = `Connecting (${region.toUpperCase()})...`;
+            setTimeout(() => {
+                statusEl.innerText = `${region.toUpperCase()} Active`;
+            }, 300);
+        }
+
+        // Internal App Manager
+        function openApp(appName) {
+            const appView = document.getElementById('app-view');
+            const appTitle = document.getElementById('app-title');
+            const appContent = document.getElementById('app-content');
+            const currentDev = devices.find(d => d.id === activeDeviceId);
+
+            appView.classList.remove('hidden');
+
+            if (appName === 'playstore') {
+                if (!currentDev.account) {
+                    appTitle.innerHTML = `<i class="fa-brands fa-google-play text-emerald-400"></i> Google Play Sign-In`;
+                    appContent.innerHTML = `
+                        <div class="space-y-3 w-full max-w-xs">
+                            <div class="bg-emerald-600 text-white p-3 rounded-xl font-bold text-xs shadow-md">Sign in to Google Play</div>
+                            <p class="text-[11px] text-slate-300">Profile: <strong>${currentDev.name}</strong></p>
+                            <input id="acc-input" type="email" placeholder="Enter your email or phone" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <button onclick="saveAccount()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded text-xs font-semibold shadow">Sign In & Continue</button>
+                        </div>
+                    `;
+                } else {
+                    appTitle.innerHTML = `<i class="fa-brands fa-google-play text-emerald-400"></i> Play Store (Logged In)`;
+                    appContent.innerHTML = `
+                        <div class="space-y-3 w-full">
+                            <div class="bg-slate-800 p-2.5 rounded text-left text-xs">
+                                <span class="text-slate-400">Logged in account:</span>
+                                <strong class="text-emerald-400 block">${currentDev.account}</strong>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-200">Featured Apps Available:</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center bg-slate-800 p-2 rounded">
+                                    <span class="text-xs">WhatsApp Messenger</span>
+                                    <button onclick="installApp('WhatsApp')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-[11px]">Install</button>
+                                </div>
+                                <div class="flex justify-between items-center bg-slate-800 p-2 rounded">
+                                    <span class="text-xs">Telegram</span>
+                                    <button onclick="installApp('Telegram')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-[11px]">Install</button>
+                                </div>
+                            </div>
+                            <button onclick="logoutAccount()" class="text-xs text-rose-400 underline mt-4">Switch Account / Logout</button>
+                        </div>
+                    `;
+                }
+            } else if (appName === 'browser') {
+                appTitle.innerHTML = `<i class="fa-solid fa-globe text-blue-400"></i> Internal Web Browser`;
+                appContent.innerHTML = `
+                    <div class="w-full h-full flex flex-col space-y-2">
+                        <div class="flex items-center bg-slate-800 rounded p-1.5 border border-slate-700">
+                            <i class="fa-solid fa-lock text-emerald-400 text-xs px-2"></i>
+                            <span class="text-[11px] text-slate-300 truncate">https://www.google.com</span>
+                        </div>
+                        <div class="flex-grow bg-slate-800 text-slate-200 rounded p-3 text-xs flex flex-col items-center justify-center font-medium space-y-2 border border-slate-700">
+                            <i class="fa-solid fa-shield-halved text-2xl text-emerald-400"></i>
+                            <span>Secure Sandbox Session (${currentDev.name})</span>
+                        </div>
+                    </div>
+                `;
+            } else if (appName === 'files') {
+                appTitle.innerHTML = `<i class="fa-solid fa-folder-open text-amber-400"></i> Virtual File Manager`;
+                appContent.innerHTML = `
+                    <div class="w-full text-left space-y-3 text-xs">
+                        <div class="bg-slate-800 p-3 rounded border border-slate-700 text-center">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-amber-400 mb-2"></i>
+                            <p class="text-slate-300 mb-2 font-medium">Import APK or Files from Device</p>
+                            <input type="file" id="apk-file-input" class="hidden" onchange="handleFileImport(event)">
+                            <button onclick="document.getElementById('apk-file-input').click()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded font-semibold transition">Browse Device Files</button>
+                        </div>
+                        <div class="bg-slate-800 p-2.5 rounded border border-slate-700">
+                            <span class="text-slate-400 block mb-1">Installed Custom Apps / Files:</span>
+                            <div id="installed-list" class="text-emerald-400 font-medium">
+                                ${currentDev.installedApps.length > 0 ? currentDev.installedApps.join(', ') : 'No custom apps installed yet.'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (appName === 'settings') {
+                appTitle.innerHTML = `<i class="fa-solid fa-gear text-slate-400"></i> Device System Config`;
+                appContent.innerHTML = `
+                    <div class="w-full text-left space-y-3 text-xs">
+                        <div class="bg-slate-800 p-2.5 rounded border border-slate-700">
+                            <span class="text-slate-400 block">Device Identifier:</span>
+                            <strong class="text-emerald-400">${currentDev.id}</strong>
+                        </div>
+                        <div class="bg-slate-800 p-2.5 rounded border border-slate-700">
+                            <span class="text-slate-400 block">Linked Google Account:</span>
+                            <strong class="text-blue-400">${currentDev.account || 'None Linked'}</strong>
+                        </div>
+                        <button onclick="deleteDevice()" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded font-semibold transition">Delete Profile</button>
+                    </div>
+                `;
+            }
+        }
+
+        function saveAccount() {
+            const accVal = document.getElementById('acc-input').value;
+            if(!accVal) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            const currentDev = devices.find(d => d.id === activeDeviceId);
+            if (currentDev) {
+                currentDev.account = accVal;
+                localStorage.setItem('emu_devices', JSON.stringify(devices));
+                openApp('playstore'); // Refresh playstore view
+            }
+        }
+
+        function logoutAccount() {
+            const currentDev = devices.find(d => d.id === activeDeviceId);
+            if (currentDev) {
+                currentDev.account = '';
+                localStorage.setItem('emu_devices', JSON.stringify(devices));
+                openApp('playstore');
+            }
+        }
+
+        function installApp(appName) {
+            const currentDev = devices.find(d => d.id === activeDeviceId);
+            if(currentDev && !currentDev.installedApps.includes(appName)) {
+                currentDev.installedApps.push(appName);
+                localStorage.setItem('emu_devices', JSON.stringify(devices));
+                alert(`${appName} successfully installed in virtual environment!`);
+            } else {
+                alert(`${appName} is already installed.`);
+            }
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const currentDev = devices.find(d => d.id === activeDeviceId);
+                if(currentDev) {
+                    currentDev.installedApps.push(file.name);
+                    localStorage.setItem('emu_devices', JSON.stringify(devices));
+                    alert(`File/APK "${file.name}" imported and installed successfully!`);
+                    openApp('files');
+                }
+            }
+        }
+
+        function deleteDevice() {
+            if (devices.length <= 1) {
+                alert('You must keep at least one device profile!');
+                return;
+            }
+            devices = devices.filter(d => d.id !== activeDeviceId);
+            activeDeviceId = devices[0].id;
+            localStorage.setItem('emu_devices', JSON.stringify(devices));
+            localStorage.setItem('emu_active_device', activeDeviceId);
+            closeApp();
+            renderDeviceDropdown();
+            loadActiveDevice();
+        }
+
+        function closeApp() {
+            document.getElementById('app-view').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
